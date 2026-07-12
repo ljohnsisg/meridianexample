@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meridian Flightpath — Pilot Career Placement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#F5F8FB;--surface:#FFFFFF;--surface-2:#EEF3F9;
+    --ink:#0A1E33;--ink-soft:#42566B;--muted:#7A8CA0;
+    --line:#E1E8F0;--line-strong:#CBD6E3;
+    --chart:#14498C;--chart-deep:#0C3568;--chart-tint:#E8F0F9;
+    --amber:#E7920B;--amber-soft:#FDF2DF;--amber-ink:#8A5504;
+    --green:#1C7A4D;--green-soft:#E4F3EA;--red:#B4342D;--red-soft:#FBE9E7;
+    --font-display:'Archivo',system-ui,sans-serif;--font-body:'Hanken Grotesk',system-ui,sans-serif;--font-mono:'IBM Plex Mono',ui-monospace,monospace;
+    --shadow:0 1px 2px rgba(10,30,51,.04),0 8px 24px rgba(10,30,51,.06);--shadow-lg:0 12px 40px rgba(10,30,51,.14);--r:14px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--font-body);color:var(--ink);background:var(--paper);line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:inherit;text-decoration:none}
+  button{font-family:inherit;cursor:pointer;border:none;background:none}
+  .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+  .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--chart);font-weight:600;display:inline-flex;align-items:center;gap:8px}
+  .eyebrow::before{content:"//";color:var(--amber);font-weight:700}
+
+  header.nav{position:sticky;top:0;z-index:100;background:rgba(245,248,251,.85);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+  .nav-inner{display:flex;align-items:center;gap:28px;height:68px}
+  .brand{display:flex;align-items:center;gap:11px;font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:-.01em}
+  .brand .mark{width:34px;height:34px;flex:none}
+  .brand small{display:block;font-family:var(--font-mono);font-size:9.5px;font-weight:500;letter-spacing:.15em;color:var(--muted);text-transform:uppercase}
+  .nav-links{display:flex;gap:4px;margin-left:8px}
+  .nav-links button{font-size:14.5px;font-weight:600;color:var(--ink-soft);padding:8px 13px;border-radius:8px;transition:.15s}
+  .nav-links button:hover{color:var(--ink);background:var(--surface-2)}
+  .nav-links button.active{color:var(--chart)}
+  .nav-right{margin-left:auto;display:flex;align-items:center;gap:10px}
+  .btn{display:inline-flex;align-items:center;gap:8px;font-weight:700;font-size:14.5px;padding:10px 18px;border-radius:10px;transition:.15s;white-space:nowrap;border:none}
+  .btn-primary{background:var(--chart);color:#fff}.btn-primary:hover{background:var(--chart-deep)}
+  .btn-ghost{color:var(--ink);border:1px solid var(--line-strong)}.btn-ghost:hover{background:var(--surface);border-color:var(--muted)}
+  .btn-amber{background:var(--amber);color:#fff}.btn-amber:hover{filter:brightness(.94)}
+  .btn .arr{transition:transform .15s}.btn:hover .arr{transform:translateX(3px)}
+
+  .view{display:none;animation:fade .35s ease}.view.active{display:block}
+  @keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+  .hero{position:relative;overflow:hidden;border-bottom:1px solid var(--line)}
+  .hero-bg{position:absolute;inset:0;pointer-events:none;opacity:.5}
+  .hero-inner{position:relative;display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;padding:74px 0 80px}
+  .hero h1{font-family:var(--font-display);font-weight:800;font-size:58px;line-height:1.02;letter-spacing:-.025em;margin:18px 0 20px}
+  .hero h1 em{font-style:normal;color:var(--chart)}
+  .hero p.lead{font-size:18.5px;color:var(--ink-soft);max-width:33ch;margin-bottom:30px}
+  .hero-cta{display:flex;gap:12px;flex-wrap:wrap}
+  .hero-meta{margin-top:34px;display:flex;gap:26px;font-family:var(--font-mono);font-size:12px;color:var(--muted);flex-wrap:wrap}
+  .hero-meta b{color:var(--ink);font-weight:600}
+  .board{background:var(--chart-deep);border-radius:16px;padding:6px;box-shadow:var(--shadow-lg)}
+  .board-head{display:flex;align-items:center;justify-content:space-between;padding:13px 16px 12px;color:#fff}
+  .board-head .t{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;opacity:.85;display:flex;align-items:center;gap:8px}
+  .live-dot{width:7px;height:7px;border-radius:50%;background:#3FD97A;animation:pulse 2s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(63,217,122,.6)}70%{box-shadow:0 0 0 7px rgba(63,217,122,0)}100%{box-shadow:0 0 0 0 rgba(63,217,122,0)}}
+  .board-clock{font-family:var(--font-mono);font-size:12px;color:#8FB4E8}
+  .board-grid{background:#081f3d;border-radius:11px;overflow:hidden}
+  .board-row{display:grid;grid-template-columns:1.5fr 1.2fr .6fr .8fr;gap:10px;padding:12px 16px;align-items:center;border-top:1px solid rgba(255,255,255,.06);font-family:var(--font-mono);font-size:12.5px;color:#DCE8F7}
+  .board-row.hdr{color:#6E8FBF;font-size:10px;letter-spacing:.1em;text-transform:uppercase;padding:9px 16px;border-top:none}
+  .board-row .pgm{color:#fff;font-family:var(--font-body);font-weight:600;font-size:13.5px}
+  .status-chip{font-size:10px;font-weight:600;letter-spacing:.05em;padding:3px 8px;border-radius:5px;text-transform:uppercase;font-family:var(--font-mono)}
+  .st-open{background:rgba(63,217,122,.16);color:#5FE39A}.st-few{background:rgba(231,146,11,.18);color:#F6BE5A}
+
+  .stats{border-bottom:1px solid var(--line);background:var(--surface)}
+  .stats-inner{display:grid;grid-template-columns:repeat(4,1fr)}
+  .stat{padding:30px 24px;border-left:1px solid var(--line)}.stat:first-child{border-left:none}
+  .stat .n{font-family:var(--font-display);font-weight:800;font-size:40px;letter-spacing:-.02em;line-height:1}
+  .stat .n span{color:var(--amber)}
+  .stat .l{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:9px}
+
+  section.blk{padding:76px 0}
+  .sec-head{max-width:640px;margin-bottom:44px}
+  .sec-head h2{font-family:var(--font-display);font-weight:800;font-size:36px;letter-spacing:-.02em;line-height:1.08;margin:14px 0 12px}
+  .sec-head p{font-size:16.5px;color:var(--ink-soft)}
+  .steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+  .step{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:28px;transition:.18s}
+  .step:hover{border-color:var(--line-strong);box-shadow:var(--shadow);transform:translateY(-2px)}
+  .step .num{font-family:var(--font-mono);font-size:13px;color:var(--amber);font-weight:600;letter-spacing:.12em;display:block;margin-bottom:16px}
+  .step h3{font-family:var(--font-display);font-weight:700;font-size:19px;margin-bottom:9px}
+  .step p{font-size:14.5px;color:var(--ink-soft)}
+
+  .cta-band{background:var(--chart-deep);color:#fff;border-radius:20px;padding:52px;display:flex;align-items:center;justify-content:space-between;gap:30px;position:relative;overflow:hidden}
+  .cta-band h2{font-family:var(--font-display);font-weight:800;font-size:32px;letter-spacing:-.02em;line-height:1.1;max-width:16ch}
+  .cta-band p{color:#B9CCE6;margin-top:10px;max-width:42ch}
+  .cta-band .rose{position:absolute;right:-40px;top:50%;transform:translateY(-50%);opacity:.14}
+
+  .ob-head{padding:48px 0 8px;text-align:center}
+  .ob-head h1{font-family:var(--font-display);font-weight:800;font-size:38px;letter-spacing:-.02em;margin:12px 0 10px}
+  .ob-head p{font-size:17px;color:var(--ink-soft);max-width:52ch;margin:0 auto}
+  .ob-steps{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:36px 0 20px;align-items:start}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:26px}
+  .card .step-k{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--amber);font-weight:600;margin-bottom:6px}
+  .card h3{font-family:var(--font-display);font-weight:700;font-size:20px;margin-bottom:6px}
+  .card .hint{font-size:14px;color:var(--ink-soft);margin-bottom:18px}
+  .dropzone{border:2px dashed var(--line-strong);border-radius:12px;padding:34px 20px;text-align:center;cursor:pointer;transition:.15s;background:var(--paper)}
+  .dropzone:hover,.dropzone.drag{border-color:var(--chart);background:var(--chart-tint)}
+  .dropzone .ic{color:var(--chart);margin-bottom:10px}
+  .dropzone .big{font-weight:600;font-size:15px}
+  .dropzone .sm{font-family:var(--font-mono);font-size:11.5px;color:var(--muted);margin-top:6px}
+  .fmt-row{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px;justify-content:center}
+  .fmt-pill{font-family:var(--font-mono);font-size:10px;font-weight:600;color:var(--ink-soft);background:var(--surface-2);border:1px solid var(--line);padding:4px 9px;border-radius:20px}
+  .or{text-align:center;font-family:var(--font-mono);font-size:11px;color:var(--muted);margin:14px 0;letter-spacing:.1em}
+  .parsed{margin-top:18px;border:1px solid var(--green);background:var(--green-soft);border-radius:11px;padding:16px;display:none}
+  .parsed.show{display:block}
+  .parsed .ph{font-family:var(--font-mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--green);font-weight:600;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+  .parsed-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .parsed-grid .pc{background:var(--surface);border:1px solid var(--line);border-radius:9px;padding:11px}
+  .parsed-grid .pc .v{font-family:var(--font-mono);font-weight:600;font-size:18px}
+  .parsed-grid .pc .k{font-family:var(--font-mono);font-size:9px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted);margin-top:3px}
+  .cert-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .cert-opt{display:flex;align-items:center;gap:10px;padding:11px 13px;border:1px solid var(--line);border-radius:10px;font-size:14px;font-weight:500;cursor:pointer;transition:.12s;user-select:none}
+  .cert-opt:hover{border-color:var(--line-strong)}
+  .cert-opt input{appearance:none;width:18px;height:18px;border:1.5px solid var(--line-strong);border-radius:5px;flex:none;position:relative;cursor:pointer}
+  .cert-opt input:checked{background:var(--chart);border-color:var(--chart)}
+  .cert-opt input:checked::after{content:"";position:absolute;left:5px;top:1.5px;width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+  .cert-opt:has(input:checked){border-color:var(--chart);background:var(--chart-tint)}
+  .ob-result{background:var(--chart-deep);color:#fff;border-radius:16px;padding:30px;margin:8px 0 60px;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
+  .ob-result .big{font-family:var(--font-display);font-weight:800;font-size:26px}
+  .ob-result .big span{color:#5FE39A}
+  .ob-result p{color:#B9CCE6;font-size:14px;margin-top:6px;font-family:var(--font-mono)}
+
+  .cat-head{padding:44px 0 26px;border-bottom:1px solid var(--line);background:var(--surface)}
+  .cat-head h1{font-family:var(--font-display);font-weight:800;font-size:34px;letter-spacing:-.02em}
+  .cat-head .sub{color:var(--ink-soft);margin-top:8px;font-size:16px}
+  .searchbar{margin-top:22px;display:flex;gap:10px;max-width:560px}
+  .searchbar .field{flex:1;display:flex;align-items:center;gap:10px;background:var(--paper);border:1px solid var(--line-strong);border-radius:11px;padding:0 14px}
+  .searchbar input{flex:1;border:none;background:none;outline:none;font-family:var(--font-body);font-size:15px;padding:12px 0;color:var(--ink)}
+  .profile-banner{background:var(--chart-tint);border:1px solid var(--chart);border-radius:12px;padding:14px 18px;margin:20px 0 0;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
+  .profile-banner .pb-t{font-size:14px}.profile-banner .pb-t b{color:var(--chart)}
+  .profile-banner .pb-hrs{font-family:var(--font-mono);font-size:12.5px;color:var(--ink-soft)}
+  .toggle{display:flex;align-items:center;gap:9px;font-size:13.5px;font-weight:600;cursor:pointer}
+  .toggle .sw{width:38px;height:22px;border-radius:11px;background:var(--line-strong);position:relative;transition:.15s;flex:none}
+  .toggle .sw::after{content:"";position:absolute;width:16px;height:16px;border-radius:50%;background:#fff;top:3px;left:3px;transition:.15s}
+  .toggle.on .sw{background:var(--chart)}.toggle.on .sw::after{left:19px}
+
+  .cat-body{display:grid;grid-template-columns:264px 1fr;gap:32px;padding:26px 0 80px;align-items:start}
+  .filters{position:sticky;top:88px}
+  .fgroup{border-bottom:1px solid var(--line);padding:18px 0}.fgroup:first-child{padding-top:0}
+  .fgroup h5{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:13px;display:flex;justify-content:space-between}
+  .opt{display:flex;align-items:center;gap:10px;padding:5px 0;font-size:14px;color:var(--ink-soft);cursor:pointer;user-select:none}
+  .opt input{appearance:none;width:17px;height:17px;border:1.5px solid var(--line-strong);border-radius:5px;flex:none;position:relative;cursor:pointer}
+  .opt input:checked{background:var(--chart);border-color:var(--chart)}
+  .opt input:checked::after{content:"";position:absolute;left:5px;top:1.5px;width:4px;height:8px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg)}
+  .opt:hover{color:var(--ink)}.opt .ct{margin-left:auto;font-family:var(--font-mono);font-size:11px;color:var(--muted)}
+  .slider-val{font-family:var(--font-mono);font-size:12px;color:var(--chart);font-weight:600}
+  input[type=range]{width:100%;accent-color:var(--chart);margin-top:6px}
+  .fhint{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);margin-top:8px;line-height:1.5}
+  .clear-f{font-family:var(--font-mono);font-size:11px;color:var(--chart);cursor:pointer;text-transform:uppercase;letter-spacing:.05em}
+  .results-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+  .results-top .cnt{font-family:var(--font-mono);font-size:13px;color:var(--ink-soft)}.results-top .cnt b{color:var(--ink)}
+  .cards{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+
+  .pcard{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;transition:.18s;display:flex;flex-direction:column}
+  .pcard:hover{box-shadow:var(--shadow);border-color:var(--line-strong);transform:translateY(-2px)}
+  .pcard.featured{border-color:var(--amber);box-shadow:0 0 0 1px var(--amber)}
+  .pcard .strip{height:5px;background:var(--chart)}.pcard.featured .strip{background:var(--amber)}
+  .qbar{display:flex;align-items:center;gap:7px;padding:9px 18px;font-family:var(--font-mono);font-size:11px;font-weight:600;letter-spacing:.03em}
+  .qbar.q-ok{background:var(--green-soft);color:var(--green)}
+  .qbar.q-hrs{background:var(--amber-soft);color:var(--amber-ink)}
+  .qbar.q-cert{background:var(--red-soft);color:var(--red)}
+  .pc-top{padding:16px 18px 0;display:flex;gap:13px}
+  .pc-badge{width:44px;height:44px;border-radius:10px;background:var(--chart-tint);color:var(--chart);display:grid;place-items:center;flex:none;font-family:var(--font-display);font-weight:800;font-size:15px}
+  .pcard.featured .pc-badge{background:var(--amber-soft);color:var(--amber-ink)}
+  .pc-title h3{font-family:var(--font-display);font-weight:700;font-size:16.5px;line-height:1.15;letter-spacing:-.01em}
+  .pc-title .sub{font-size:12.5px;color:var(--ink-soft);margin-top:3px;font-weight:600}
+  .pc-meta{padding:12px 18px 0;display:flex;gap:14px;font-family:var(--font-mono);font-size:11.5px;color:var(--muted);flex-wrap:wrap}
+  .pc-meta span{display:inline-flex;align-items:center;gap:5px}
+  .pc-tags{display:flex;flex-wrap:wrap;gap:6px;padding:12px 18px 4px}
+  .chip{font-family:var(--font-mono);font-size:10px;font-weight:600;letter-spacing:.04em;padding:3px 8px;border-radius:5px;text-transform:uppercase}
+  .chip.now{background:var(--green);color:#fff}.chip.low{background:var(--amber-soft);color:var(--amber-ink)}
+  .chip.time{background:var(--chart-tint);color:var(--chart)}.chip.bonus{background:var(--green-soft);color:var(--green)}
+  .chip.reloc{background:var(--surface-2);color:var(--ink-soft)}
+  .pc-spec{margin:14px 18px 0;display:grid;grid-template-columns:repeat(3,1fr);border:1px solid var(--line);border-radius:9px;overflow:hidden;font-family:var(--font-mono)}
+  .pc-spec div{padding:9px 11px;border-right:1px solid var(--line)}.pc-spec div:last-child{border-right:none}
+  .pc-spec span{display:block;font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:2px}
+  .pc-spec b{font-size:13.5px;color:var(--ink);font-weight:600}
+  .pc-foot{margin-top:auto;padding:15px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-top:1px solid var(--line)}
+  .pc-price{font-family:var(--font-display);font-weight:800;font-size:18px;letter-spacing:-.01em}
+  .pc-price small{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);font-weight:400}
+  .pc-actions{display:flex;gap:8px}
+  .mini-btn{font-size:12.5px;font-weight:700;padding:7px 12px;border-radius:8px;transition:.15s}
+  .mini-tips{color:var(--chart);border:1px solid var(--line-strong)}.mini-tips:hover{background:var(--chart-tint);border-color:var(--chart)}
+  .mini-apply{background:var(--chart);color:#fff}.mini-apply:hover{background:var(--chart-deep)}
+  .no-res{grid-column:1/-1;text-align:center;padding:60px 0;color:var(--muted)}
+  .no-res b{display:block;font-family:var(--font-display);font-size:20px;color:var(--ink);margin-bottom:6px}
+
+  .portal-shell{min-height:70vh;padding:44px 0 80px}
+  .dash-head{display:flex;align-items:flex-end;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:28px}
+  .dash-head h1{font-family:var(--font-display);font-weight:800;font-size:30px;letter-spacing:-.02em}
+  .dash-head .who{font-family:var(--font-mono);font-size:12.5px;color:var(--muted);margin-top:6px}
+  .qualify{font-family:var(--font-mono);font-size:12.5px;background:var(--green-soft);color:var(--green);padding:10px 15px;border-radius:9px;font-weight:600}
+  .dash-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:18px}
+  .panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:22px}
+  .panel h3{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+  .hobbs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .hobbs .cell{background:var(--paper);border:1px solid var(--line);border-radius:10px;padding:14px}
+  .hobbs .cell .v{font-family:var(--font-mono);font-weight:600;font-size:21px}
+  .hobbs .cell .v small{font-size:11px;color:var(--muted)}
+  .hobbs .cell .k{font-family:var(--font-mono);font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-top:4px}
+  .rating-chips{display:flex;flex-wrap:wrap;gap:7px}
+  .rc{font-family:var(--font-mono);font-size:11px;font-weight:600;padding:5px 10px;border-radius:6px;background:var(--chart-tint);color:var(--chart)}
+  .tips-list{list-style:none;display:flex;flex-direction:column;gap:14px}
+  .tips-list li{display:flex;gap:12px;font-size:14px;color:var(--ink-soft)}
+  .tips-list .n{font-family:var(--font-mono);font-size:11px;font-weight:600;color:var(--chart);background:var(--chart-tint);width:24px;height:24px;border-radius:7px;display:grid;place-items:center;flex:none;margin-top:1px}
+  .tips-list b{color:var(--ink)}
+  .cd{font-family:var(--font-display);font-weight:800;font-size:38px;letter-spacing:-.02em;line-height:1}
+  .milestone{background:linear-gradient(135deg,var(--chart) 0%,var(--chart-deep) 100%);color:#fff;border-radius:var(--r);padding:22px}
+  .milestone .k{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:#9EC0EC;margin-bottom:10px}
+  .milestone .cd{color:#fff}
+  .milestone small{font-family:var(--font-mono);font-size:11px;color:#CFE0F5;display:block;margin-top:8px}
+
+  .overlay{position:fixed;inset:0;background:rgba(10,30,51,.55);backdrop-filter:blur(3px);z-index:200;display:none;align-items:flex-start;justify-content:center;padding:40px 20px;overflow-y:auto}
+  .overlay.show{display:flex}
+  .modal{background:var(--paper);border-radius:18px;max-width:640px;width:100%;box-shadow:var(--shadow-lg);overflow:hidden;animation:pop .25s ease}
+  @keyframes pop{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+  .modal-top{background:var(--chart-deep);color:#fff;padding:22px 26px;display:flex;justify-content:space-between;align-items:flex-start;gap:16px}
+  .modal-top .eyebrow{color:#8FB4E8}.modal-top .eyebrow::before{color:var(--amber)}
+  .modal-top h2{font-family:var(--font-display);font-weight:800;font-size:21px;margin-top:7px;line-height:1.15}
+  .modal-top .mt-sub{font-family:var(--font-mono);font-size:12px;color:#9EC0EC;margin-top:5px}
+  .modal-close{color:#fff;font-size:22px;line-height:1;opacity:.7;flex:none}.modal-close:hover{opacity:1}
+  .modal-body{padding:24px 26px 28px;max-height:64vh;overflow-y:auto}
+  .fit{border-radius:11px;padding:14px 16px;margin-bottom:20px;font-size:14.5px;font-weight:600;display:flex;align-items:center;gap:10px}
+  .fit.ok{background:var(--green-soft);color:var(--green)}.fit.gap{background:var(--amber-soft);color:var(--amber-ink)}
+  .mb-h{font-family:var(--font-mono);font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);font-weight:600;margin:22px 0 12px;display:flex;align-items:center;justify-content:space-between}
+  .mb-h:first-child{margin-top:0}
+  .tip-row{display:flex;gap:11px;margin-bottom:11px;font-size:14px;color:var(--ink-soft)}
+  .tip-row .b{width:6px;height:6px;border-radius:50%;background:var(--amber);flex:none;margin-top:8px}
+  .kit{background:var(--surface);border:1px solid var(--line);border-radius:11px;padding:16px;font-size:13.5px;line-height:1.6;color:var(--ink-soft);white-space:pre-wrap;font-family:var(--font-body)}
+  .copy-btn{font-family:var(--font-mono);font-size:11px;color:var(--chart);cursor:pointer;text-transform:uppercase;letter-spacing:.05em;font-weight:600}
+  .ai-btn{display:inline-flex;align-items:center;gap:7px;font-size:12.5px;font-weight:700;color:var(--chart);border:1px solid var(--line-strong);padding:6px 12px;border-radius:8px}
+  .ai-btn:hover{background:var(--chart-tint);border-color:var(--chart)}.ai-btn:disabled{opacity:.5;cursor:wait}
+  .ai-note{font-family:var(--font-mono);font-size:10.5px;color:var(--muted);margin-top:8px}
+
+  footer{border-top:1px solid var(--line);background:var(--surface);padding:52px 0 34px;margin-top:20px}
+  .foot-grid{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr;gap:32px;padding-bottom:36px;border-bottom:1px solid var(--line)}
+  .foot-grid h6{font-family:var(--font-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+  .foot-grid a{display:block;font-size:14px;color:var(--ink-soft);padding:5px 0}.foot-grid a:hover{color:var(--chart)}
+  .foot-grid p{font-size:13.5px;color:var(--ink-soft);max-width:32ch;margin-top:12px}
+  .foot-bot{display:flex;justify-content:space-between;align-items:center;padding-top:22px;font-family:var(--font-mono);font-size:11.5px;color:var(--muted);flex-wrap:wrap;gap:10px}
+
+  @media(max-width:920px){
+    .hero-inner{grid-template-columns:1fr;gap:38px;padding:52px 0}.hero h1{font-size:42px}
+    .stats-inner{grid-template-columns:1fr 1fr}.stat{border-top:1px solid var(--line)}.stat:nth-child(-n+2){border-top:none}.stat:nth-child(2n+1){border-left:none}
+    .steps{grid-template-columns:1fr}.ob-steps{grid-template-columns:1fr}
+    .cta-band{flex-direction:column;align-items:flex-start;padding:36px}
+    .cat-body{grid-template-columns:1fr}.filters{position:static;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:20px}
+    .cards{grid-template-columns:1fr}.dash-grid{grid-template-columns:1fr}.hobbs{grid-template-columns:1fr 1fr}
+    .foot-grid{grid-template-columns:1fr 1fr}.nav-links{display:none}
+  }
+  @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<header class="nav"><div class="wrap nav-inner">
+  <a class="brand" href="#" onclick="go('home');return false">
+    <svg class="mark" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="9" fill="#0C3568"/><path d="M17 6l3.4 8.3L29 17l-8.6 2.7L17 28l-3.4-8.3L5 17l8.6-2.7L17 6z" fill="#E7920B"/><circle cx="17" cy="17" r="2.4" fill="#fff"/></svg>
+    <span>Meridian Flightpath<br><small>Pilot Career Placement</small></span>
+  </a>
+  <nav class="nav-links">
+    <button data-nav="home" class="active" onclick="go('home')">Home</button>
+    <button data-nav="start" onclick="go('start')">Get started</button>
+    <button data-nav="jobs" onclick="go('jobs')">Job board</button>
+    <button data-nav="portal" onclick="go('portal')">My profile</button>
+  </nav>
+  <div class="nav-right"><button class="btn btn-amber" onclick="go('start')">Upload your logbook <span class="arr">→</span></button></div>
+</div></header>
+
+<!-- HOME -->
+<div id="view-home" class="view active">
+  <section class="hero">
+    <div class="hero-bg"><svg width="100%" height="100%" preserveAspectRatio="xMidYMid slice" viewBox="0 0 1200 600">
+      <defs><radialGradient id="g" cx="72%" cy="30%" r="70%"><stop offset="0%" stop-color="#E8F0F9"/><stop offset="100%" stop-color="#F5F8FB"/></radialGradient></defs>
+      <rect width="1200" height="600" fill="url(#g)"/>
+      <g stroke="#CBD6E3" stroke-width="1" fill="none" opacity=".55"><circle cx="880" cy="200" r="150"/><circle cx="880" cy="200" r="100"/><circle cx="880" cy="200" r="52"/><path d="M880 40v320M720 200h320M776 96l208 208M984 96 776 304"/></g>
+      <path d="M0 470 L1200 380" stroke="#CBD6E3" stroke-dasharray="2 12" stroke-width="2" opacity=".7"/>
+    </svg></div>
+    <div class="wrap hero-inner">
+      <div>
+        <span class="eyebrow">Placement for licensed pilots</span>
+        <h1>Upload your logbook.<br>See where you <em>qualify.</em></h1>
+        <p class="lead">Drop in your hours and certificates, and we match you to the jobs you can actually get today — with resume and application help built in.</p>
+        <div class="hero-cta"><button class="btn btn-primary" onclick="go('start')">Upload your logbook <span class="arr">→</span></button><button class="btn btn-ghost" onclick="go('jobs')">Browse the board</button></div>
+        <div class="hero-meta"><span>OPENINGS <b>240+ live</b></span><span>ENTRY POINT <b>250 hr</b></span><span>PARTNERS <b>38 employers</b></span></div>
+      </div>
+      <div class="board">
+        <div class="board-head"><div class="t"><span class="live-dot"></span>Featured openings</div><div class="board-clock" id="clock">--:-- CDT</div></div>
+        <div class="board-grid">
+          <div class="board-row hdr"><div>Employer</div><div>Role</div><div>Min hr</div><div>Status</div></div>
+          <div class="board-row"><div class="pgm">Meridian Academy</div><div>Flight Instructor</div><div>250</div><div><span class="status-chip st-open">Hiring</span></div></div>
+          <div class="board-row"><div class="pgm">Ameriflight</div><div>Cargo SIC</div><div>600</div><div><span class="status-chip st-few">Filling</span></div></div>
+          <div class="board-row"><div class="pgm">SkyWest</div><div>FO — Cadet</div><div>1000</div><div><span class="status-chip st-open">Hiring</span></div></div>
+          <div class="board-row"><div class="pgm">Redtail Survey</div><div>Survey Pilot</div><div>500</div><div><span class="status-chip st-few">Filling</span></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  <div class="stats"><div class="wrap stats-inner">
+    <div class="stat"><div class="n">312</div><div class="l">Graduates placed</div></div>
+    <div class="stat"><div class="n">4.2<span>mo</span></div><div class="l">Avg. to first flying job</div></div>
+    <div class="stat"><div class="n">38</div><div class="l">Hiring partners</div></div>
+    <div class="stat"><div class="n">$58<span>k</span></div><div class="l">Avg. starting salary</div></div>
+  </div></div>
+  <section class="blk"><div class="wrap">
+    <div class="sec-head"><span class="eyebrow">How it works</span><h2>From logbook to hired in three steps.</h2><p>We read your real hours and ratings, then show only what you qualify for — plus the help to land it.</p></div>
+    <div class="steps">
+      <div class="step"><span class="num">STEP 01</span><h3>Upload your logbook &amp; certs</h3><p>Drop in a CSV export from any major logbook app. We tally your hours and ratings automatically — no manual entry.</p></div>
+      <div class="step"><span class="num">STEP 02</span><h3>See your matches</h3><p>Every listing shows whether you qualify at your current time, or exactly how many hours or which rating you're short.</p></div>
+      <div class="step"><span class="num">STEP 03</span><h3>Get application help</h3><p>Tailored resume tips and a ready-to-edit cover letter for each job, built from your own logbook numbers.</p></div>
+    </div>
+  </div></section>
+  <section class="blk" style="padding-top:0"><div class="wrap">
+    <div class="cta-band">
+      <svg class="rose" width="240" height="240" viewBox="0 0 200 200" fill="none" stroke="#fff" stroke-width="1"><circle cx="100" cy="100" r="90"/><circle cx="100" cy="100" r="60"/><path d="M100 10v180M10 100h180M37 37l126 126M163 37 37 163"/></svg>
+      <div><h2>Your first flying job is closer than 1,500 hours.</h2><p>Upload once and see every opening you qualify for at your current time.</p></div>
+      <button class="btn btn-amber" style="font-size:16px;padding:14px 24px" onclick="go('start')">Get started <span class="arr">→</span></button>
+    </div>
+  </div></section>
+</div>
+
+<!-- GET STARTED -->
+<div id="view-start" class="view">
+  <div class="wrap">
+    <div class="ob-head">
+      <span class="eyebrow">Get started</span>
+      <h1>Let's see what you qualify for.</h1>
+      <p>Upload your logbook and check your ratings. We'll match you to live openings and prep your applications — nothing is shared until you choose to apply.</p>
+    </div>
+    <div class="ob-steps">
+      <div class="card">
+        <div class="step-k">Step 01 · Logbook</div>
+        <h3>Upload your hours</h3>
+        <p class="hint">Export a CSV from your logbook app and drop it here. We read it in your browser — it never leaves your device in this demo.</p>
+        <div class="dropzone" id="dz" onclick="document.getElementById('logfile').click()">
+          <div class="ic"><svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M12 16V4m0 0L7 9m5-5 5 5"/><path d="M20 16v3a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-3"/></svg></div>
+          <div class="big">Drop your logbook export here</div>
+          <div class="sm">or click to browse · .csv / .tsv / .txt</div>
+        </div>
+        <div class="fmt-row">
+          <span class="fmt-pill">ForeFlight</span><span class="fmt-pill">LogTen Pro</span><span class="fmt-pill">MyFlightbook</span><span class="fmt-pill">CrewLounge</span><span class="fmt-pill">Garmin Pilot</span><span class="fmt-pill">Generic CSV</span>
+        </div>
+        <input type="file" id="logfile" accept=".csv,.tsv,.txt,text/csv" style="display:none" onchange="handleFile(this.files[0])">
+        <div class="or">— OR —</div>
+        <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="loadSample()">Load a sample logbook</button>
+        <div class="parsed" id="parsed">
+          <div class="ph"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M20 6 9 17l-5-5"/></svg><span id="parsed-src">Logbook read</span></div>
+          <div class="parsed-grid" id="parsed-grid"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="step-k">Step 02 · Certificates &amp; ratings</div>
+        <h3>What do you hold?</h3>
+        <p class="hint">Check everything on your certificate. In production these are verified from an uploaded copy; here, just tick what applies.</p>
+        <div class="cert-grid" id="cert-grid"></div>
+        <div class="or" style="margin:16px 0 12px">Optional</div>
+        <button class="btn btn-ghost" style="width:100%;justify-content:center" onclick="document.getElementById('certfile').click()">Attach certificate copies</button>
+        <input type="file" id="certfile" accept="image/*,.pdf" multiple style="display:none" onchange="attachCerts(this.files)">
+        <div id="cert-files" style="font-family:var(--font-mono);font-size:11.5px;color:var(--muted);margin-top:10px"></div>
+      </div>
+    </div>
+    <div class="ob-result" id="ob-result" style="display:none">
+      <div><div class="big">You qualify for <span id="ob-count">0</span> of 12 live openings.</div><p id="ob-line">Based on your uploaded profile.</p></div>
+      <div style="display:flex;gap:10px;flex-wrap:wrap">
+        <button class="btn btn-amber" onclick="go('jobs')">See my matches <span class="arr">→</span></button>
+        <button class="btn btn-ghost" style="color:#fff;border-color:rgba(255,255,255,.3)" onclick="go('portal')">View my profile</button>
+      </div>
+    </div>
+    <div style="height:60px"></div>
+  </div>
+</div>
+
+<!-- JOB BOARD -->
+<div id="view-jobs" class="view">
+  <div class="cat-head"><div class="wrap">
+    <span class="eyebrow">Job board</span><h1>Pilot openings</h1><div class="sub">Entry-level and time-building roles for licensed pilots.</div>
+    <div class="searchbar"><div class="field">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7A8CA0" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+      <input id="search" type="text" placeholder="Search role, employer, aircraft, city…" oninput="render()">
+    </div></div>
+    <div class="profile-banner" id="profile-banner" style="display:none">
+      <div><div class="pb-t"><b>Your profile is loaded.</b> Cards below show whether you qualify.</div><div class="pb-hrs" id="pb-hrs"></div></div>
+      <div class="toggle" id="qtoggle" onclick="toggleQ()"><div class="sw"></div><span>Only show jobs I qualify for</span></div>
+    </div>
+  </div></div>
+  <div class="wrap cat-body">
+    <aside class="filters">
+      <div class="fgroup"><h5>Role type <span class="clear-f" onclick="clearFilters()">Reset</span></h5><div id="f-role"></div></div>
+      <div class="fgroup"><h5>Certificate required</h5><div id="f-cert"></div></div>
+      <div class="fgroup"><h5>Schedule</h5>
+        <label class="opt"><input type="checkbox" value="Full-time" data-f="sched" onchange="render()">Full-time</label>
+        <label class="opt"><input type="checkbox" value="Seasonal" data-f="sched" onchange="render()">Seasonal</label>
+        <label class="opt"><input type="checkbox" value="Part-time" data-f="sched" onchange="render()">Part-time</label>
+      </div>
+      <div class="fgroup"><h5>Perks</h5>
+        <label class="opt"><input type="checkbox" value="lowtime" data-f="perk" onchange="render()">Low-time friendly</label>
+        <label class="opt"><input type="checkbox" value="timebuild" data-f="perk" onchange="render()">Time building</label>
+        <label class="opt"><input type="checkbox" value="signon" data-f="perk" onchange="render()">Sign-on bonus</label>
+        <label class="opt"><input type="checkbox" value="reloc" data-f="perk" onchange="render()">Relocation / housing</label>
+      </div>
+      <div class="fgroup" style="border-bottom:none"><h5>Hours you hold <span class="slider-val" id="hrs-val">1,500+</span></h5>
+        <input type="range" id="hours" min="250" max="1500" step="50" value="1500" oninput="render()">
+        <div class="fhint">Auto-set from your logbook. Shows jobs requiring ≤ your total time.</div>
+      </div>
+    </aside>
+    <div><div class="results-top"><div class="cnt"><b id="rcount">0</b> openings match</div></div><div class="cards" id="cards"></div></div>
+  </div>
+</div>
+
+<!-- MY PROFILE -->
+<div id="view-portal" class="view">
+  <div class="wrap portal-shell">
+    <div id="no-profile" style="text-align:center;padding:60px 0">
+      <h1 style="font-family:var(--font-display);font-weight:800;font-size:28px;margin-bottom:12px">No profile yet</h1>
+      <p style="color:var(--ink-soft);margin-bottom:24px">Upload your logbook to build your pilot profile and unlock matches.</p>
+      <button class="btn btn-primary" onclick="go('start')">Get started <span class="arr">→</span></button>
+    </div>
+    <div id="profile-body" style="display:none">
+      <div class="dash-head">
+        <div><h1>Your pilot profile</h1><div class="who" id="pf-target">Target: Regional First Officer · Based DFW</div></div>
+        <div class="qualify" id="pf-qual">You qualify for 0 of 12 live openings</div>
+      </div>
+      <div class="dash-grid">
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="panel">
+            <h3>Your hours <span id="pf-src" style="font-family:var(--font-mono);color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0"></span></h3>
+            <div class="hobbs" id="pf-hours"></div>
+            <h3 style="margin-top:20px">Ratings &amp; endorsements</h3>
+            <div class="rating-chips" id="pf-certs"></div>
+          </div>
+          <div class="panel">
+            <h3>Resume tips for a first flying job</h3>
+            <ul class="tips-list">
+              <li><span class="n">1</span><span><b>Lead with your numbers.</b> Put total, PIC, cross-country, and instrument time in a stats line at the top — recruiters scan for minimums first.</span></li>
+              <li><span class="n">2</span><span><b>One page, reverse chronological.</b> Certificates and ratings up top, then experience. Skip the objective statement.</span></li>
+              <li><span class="n">3</span><span><b>Quantify everything.</b> "Flew 40+ cross-country hours into Class B" beats "experienced in busy airspace."</span></li>
+              <li><span class="n">4</span><span><b>Match the role's language.</b> A survey job wants steady low-level VFR; a 135 job wants IFR currency. Mirror their words.</span></li>
+              <li><span class="n">5</span><span><b>List currency &amp; medical.</b> First-class medical date, flight review, IPC — recruiters look for these explicitly.</span></li>
+            </ul>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:18px">
+          <div class="milestone"><div class="k">Milestone · R-ATP minimums</div><div class="cd" id="pf-ratp">— hr</div><small>to 1,250 hr restricted ATP eligibility</small></div>
+          <div class="panel"><h3>Top matches for you <span style="font-family:var(--font-body);color:var(--chart);cursor:pointer;font-weight:600" onclick="go('jobs')">See all →</span></h3><div id="pf-matches" style="display:flex;flex-direction:column;gap:10px"></div></div>
+          <button class="btn btn-ghost" style="justify-content:center" onclick="go('start')">Update logbook / certs</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer><div class="wrap">
+  <div class="foot-grid">
+    <div>
+      <a class="brand" href="#" onclick="go('home');return false" style="font-size:17px">
+        <svg class="mark" viewBox="0 0 34 34" fill="none"><rect width="34" height="34" rx="9" fill="#0C3568"/><path d="M17 6l3.4 8.3L29 17l-8.6 2.7L17 28l-3.4-8.3L5 17l8.6-2.7L17 6z" fill="#E7920B"/><circle cx="17" cy="17" r="2.4" fill="#fff"/></svg>
+        <span>Meridian Flightpath<br><small>Pilot Career Placement</small></span>
+      </a>
+      <p>Career placement for licensed pilots. Operated by Meridian Flight Academy, Fort Worth Alliance (KAFW).</p>
+    </div>
+    <div><h6>Pilots</h6><a onclick="go('start')">Upload logbook</a><a onclick="go('jobs')">Job board</a><a onclick="go('portal')">Your profile</a><a href="#">Time-building guide</a></div>
+    <div><h6>Employers</h6><a href="#">Hiring partners</a><a href="#">Post a job</a><a href="#">Search candidates</a><a href="#">Pricing</a></div>
+    <div><h6>Contact</h6><a href="#">(817) 555-0142</a><a href="#">careers@meridianflight.com</a><a href="#">2221 Alliance Blvd</a><a href="#">Fort Worth, TX 76177</a></div>
+  </div>
+  <div class="foot-bot"><span>© 2026 Meridian Flightpath — placeholder brand for prototype</span><span>Terms · Privacy · Employer agreement</span></div>
+</div></footer>
+
+<div class="overlay" id="overlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal">
+    <div class="modal-top"><div><span class="eyebrow">Application coach</span><h2 id="m-role">—</h2><div class="mt-sub" id="m-emp">—</div></div><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body" id="m-body"></div>
+  </div>
+</div>
+
+<script>
+/* ===================== DATA ===================== */
+const JOBS=[
+ {id:1,employer:"Meridian Flight Academy",etype:"Flight School",role:"Certified Flight Instructor",roletype:"Flight Instructor",aircraft:"C172 / DA40",minhours:250,cert:"CFI",location:"Fort Worth, TX",pay:"$48–72k",unit:"+ per-hr",perks:["lowtime","timebuild"],sched:"Full-time",featured:true,now:true},
+ {id:2,employer:"Lone Star Executive",etype:"Part 135 / Charter",role:"First Officer (SIC)",roletype:"Part 135 / Charter",aircraft:"King Air 350",minhours:500,cert:"CPL",location:"Dallas, TX",pay:"$55–70k",unit:"salary",perks:["timebuild","signon"],sched:"Full-time",featured:false,now:false},
+ {id:3,employer:"SkyWest Airlines",etype:"Regional Airline",role:"First Officer — Cadet",roletype:"Regional Airline",aircraft:"CRJ / E175",minhours:1000,cert:"R-ATP",location:"Multiple bases",pay:"$90k+",unit:"yr 1",perks:["signon","reloc"],sched:"Full-time",featured:true,now:true},
+ {id:4,employer:"Redtail Geospatial",etype:"Survey Ops",role:"Aerial Survey Pilot",roletype:"Survey & Patrol",aircraft:"Cessna 207",minhours:500,cert:"CPL",location:"Regional (US)",pay:"$52–60k",unit:"salary",perks:["timebuild","lowtime"],sched:"Seasonal",featured:false,now:false},
+ {id:5,employer:"Coastal Banner Ads",etype:"Aerial Advertising",role:"Banner Tow Pilot",roletype:"Banner & Tow",aircraft:"PA-18 Super Cub",minhours:300,cert:"CPL",location:"Galveston, TX",pay:"$38–46k",unit:"salary",perks:["lowtime","timebuild"],sched:"Seasonal",featured:false,now:false},
+ {id:6,employer:"Ameriflight",etype:"Feeder Cargo",role:"SIC — Feeder Cargo",roletype:"Cargo",aircraft:"Metroliner / Caravan",minhours:600,cert:"CPL",location:"Dallas, TX",pay:"$60–75k",unit:"salary",perks:["timebuild","signon"],sched:"Full-time",featured:false,now:true},
+ {id:7,employer:"Envoy Air",etype:"Regional Airline",role:"First Officer — Cadet",roletype:"Regional Airline",aircraft:"E145 / E175",minhours:1000,cert:"R-ATP",location:"DFW / ORD",pay:"$100k+",unit:"yr 1",perks:["signon","reloc"],sched:"Full-time",featured:true,now:false},
+ {id:8,employer:"Big Bend Air Tours",etype:"Sightseeing",role:"Air Tour Pilot",roletype:"Tour & Sightseeing",aircraft:"Cessna 206",minhours:500,cert:"CPL",location:"Terlingua, TX",pay:"$45–55k",unit:"+ tips",perks:["lowtime"],sched:"Seasonal",featured:false,now:false},
+ {id:9,employer:"NorthStar Traffic",etype:"Broadcast Ops",role:"Traffic Watch Pilot",roletype:"Survey & Patrol",aircraft:"Cessna 172",minhours:300,cert:"CPL",location:"Houston, TX",pay:"$40–50k",unit:"salary",perks:["lowtime","timebuild"],sched:"Part-time",featured:false,now:false},
+ {id:10,employer:"Priority Jet",etype:"Corporate",role:"SIC — Corporate",roletype:"Corporate",aircraft:"Citation CJ3",minhours:1200,cert:"CPL",location:"Addison, TX",pay:"$70–90k",unit:"salary",perks:["signon","reloc"],sched:"Full-time",featured:false,now:false},
+ {id:11,employer:"Pinnacle Skydive",etype:"Drop Zone",role:"Jump Pilot",roletype:"Tour & Sightseeing",aircraft:"C182 / Caravan",minhours:500,cert:"CPL",location:"Aubrey, TX",pay:"$42–52k",unit:"salary",perks:["lowtime","timebuild"],sched:"Seasonal",featured:false,now:false},
+ {id:12,employer:"Meridian Flight Academy",etype:"Flight School",role:"Instrument Instructor",roletype:"Flight Instructor",aircraft:"C172",minhours:300,cert:"CFII",location:"Fort Worth, TX",pay:"$52–78k",unit:"+ per-hr",perks:["timebuild"],sched:"Full-time",featured:false,now:true}
+];
+const CERT_OPTS=["CPL","Instrument","CFI","CFII","MEI","Multi-Engine","Complex","High-perf","Tailwheel"];
+
+let PROFILE={loaded:false,src:"",hours:{total:0,pic:0,xc:0,night:0,instrument:0,multi:0,solo:0},certs:[],certFiles:[]};
+let onlyQualify=false;
+
+function reqCert(j){return j.cert==='R-ATP'?'CPL':j.cert;}
+function holdsCert(j){return PROFILE.certs.includes(reqCert(j));}
+function qStatus(j){
+  if(!PROFILE.loaded)return null;
+  const okCert=holdsCert(j),okHrs=PROFILE.hours.total>=j.minhours;
+  if(okCert&&okHrs)return {state:'ok'};
+  if(!okCert)return {state:'cert'};
+  return {state:'hrs',gap:j.minhours-PROFILE.hours.total};
+}
+function countQualifying(){return JOBS.filter(j=>{const q=qStatus(j);return q&&q.state==='ok';}).length;}
+
+/* ===================== LOGBOOK IMPORT (multi-format) ===================== */
+function num(x){const n=parseFloat(String(x==null?'':x).replace(/[^0-9.\-]/g,''));return isNaN(n)?0:n;}
+function detectDelimiter(text){
+  const line=(text.split(/\r?\n/).find(l=>l.trim())||"");
+  const c={',':(line.match(/,/g)||[]).length,'\t':(line.match(/\t/g)||[]).length,';':(line.match(/;/g)||[]).length};
+  return Object.keys(c).sort((a,b)=>c[b]-c[a])[0]||',';
+}
+function splitLine(line,d){
+  const out=[];let cur='',q=false;
+  for(let i=0;i<line.length;i++){const ch=line[i];
+    if(ch==='"'){if(q&&line[i+1]==='"'){cur+='"';i++;}else q=!q;}
+    else if(ch===d&&!q){out.push(cur);cur='';}
+    else cur+=ch;}
+  out.push(cur);return out.map(s=>s.trim().replace(/^"|"$/g,''));
+}
+const HDR={
+  total:['total time','totaltime','total flight time','flight time','block time','duration'],
+  pic:['pilot in command','pic time','pic'],
+  xc:['cross country','cross-country','crosscountry','x-country','xc'],
+  night:['night time','night'],
+  actInst:['actual instrument','actualinstrument','imc'],
+  simInst:['simulated instrument','simulatedinstrument','hood'],
+  inst:['instrument'],
+  multi:['multi engine','multi-engine','multiengine','amel','me time'],
+  solo:['solo']
+};
+const EXCL=['name','landing','takeoff','approach','ldg','holds','distance','pax','fuel','remark','comment','date','airport'];
+function colFor(cols,keys){
+  for(const k of keys){
+    const i=cols.findIndex(h=>h.includes(k)&&!EXCL.some(e=>h.includes(e)));
+    if(i>=0)return i;
+  }
+  return -1;
+}
+function parseLogbook(raw){
+  const d=detectDelimiter(raw);
+  const lines=raw.split(/\r?\n/);
+  const lower=raw.toLowerCase();
+  const isFF=lower.includes('flights table')||lower.includes('foreflight logbook');
+  let format='Generic CSV', headerIdx=-1, ffClass={};
+
+  if(isFF){
+    format='ForeFlight';
+    let acHdr=-1,acSeen=false,flSeen=false;
+    for(let i=0;i<lines.length;i++){
+      const t=lines[i].toLowerCase();
+      if(t.startsWith('aircraft table'))acSeen=true;
+      if(t.startsWith('flights table'))flSeen=true;
+      if(acSeen&&acHdr<0&&/aircraftid/.test(t))acHdr=i;
+      if(headerIdx<0&&/aircraftid/.test(t)&&/total/.test(t))headerIdx=i; // flights header has AircraftID + TotalTime
+    }
+    if(acHdr>=0){
+      const ah=splitLine(lines[acHdr],d).map(s=>s.toLowerCase());
+      const idI=ah.findIndex(h=>h.includes('aircraftid'));
+      const clI=ah.findIndex(h=>h==='class');
+      for(let i=acHdr+1;i<lines.length;i++){
+        if(/^flights table/i.test(lines[i]))break;
+        if(!lines[i].trim())break;
+        const r=splitLine(lines[i],d);
+        if(idI>=0&&clI>=0&&r[idI])ffClass[r[idI]]=(r[clI]||'').toLowerCase();
+      }
+    }
+  } else {
+    for(let i=0;i<lines.length;i++){
+      const c=splitLine(lines[i],d).map(s=>s.toLowerCase());
+      if(c.some(h=>/total/.test(h)||/duration/.test(h))&&c.some(h=>/date/.test(h)||h==='pic'||/pilot in command/.test(h))){headerIdx=i;break;}
+    }
+    if(lower.includes('total flight time'))format='MyFlightbook';
+    else if(d==='\t')format='LogTen Pro';
+    else if(d===';')format='CrewLounge PILOTLOG';
+    else if(lower.includes('garmin'))format='Garmin Pilot';
+  }
+  if(headerIdx<0)return null;
+  const cols=splitLine(lines[headerIdx],d).map(s=>s.toLowerCase());
+  const idx={
+    total:colFor(cols,HDR.total),pic:colFor(cols,HDR.pic),xc:colFor(cols,HDR.xc),night:colFor(cols,HDR.night),
+    actInst:colFor(cols,HDR.actInst),simInst:colFor(cols,HDR.simInst),inst:colFor(cols,HDR.inst),
+    multi:colFor(cols,HDR.multi),solo:colFor(cols,HDR.solo),
+    acid:cols.findIndex(h=>h.includes('aircraftid')||h.includes('aircraft id')||h==='tail'||h.includes('tail number')||h.includes('registration')||h.includes('ident'))
+  };
+  const s={total:0,pic:0,xc:0,night:0,instrument:0,multi:0,solo:0};
+  for(let i=headerIdx+1;i<lines.length;i++){
+    if(!lines[i].trim())continue;
+    if(/^(aircraft table|flights table|simulator table)/i.test(lines[i]))continue;
+    const r=splitLine(lines[i],d);
+    const tt=idx.total>=0?num(r[idx.total]):0;
+    s.total+=tt;
+    if(idx.pic>=0)s.pic+=num(r[idx.pic]);
+    if(idx.xc>=0)s.xc+=num(r[idx.xc]);
+    if(idx.night>=0)s.night+=num(r[idx.night]);
+    let inst=0;
+    if(idx.actInst>=0)inst+=num(r[idx.actInst]);
+    if(idx.simInst>=0)inst+=num(r[idx.simInst]);
+    if(idx.actInst<0&&idx.simInst<0&&idx.inst>=0)inst+=num(r[idx.inst]);
+    s.instrument+=inst;
+    if(idx.solo>=0)s.solo+=num(r[idx.solo]);
+    if(idx.multi>=0)s.multi+=num(r[idx.multi]);
+    else if(isFF&&idx.acid>=0){const cls=ffClass[r[idx.acid]]||'';if(/amel|ames|multi/.test(cls))s.multi+=tt;}
+  }
+  if(!(s.total>0))return null;
+  Object.keys(s).forEach(k=>s[k]=Math.round(s[k]*10)/10);
+  s._format=format;
+  return s;
+}
+function handleFile(file){
+  if(!file)return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    let parsed=null;try{parsed=parseLogbook(e.target.result);}catch(err){parsed=null;}
+    if(parsed){const fmt=parsed._format;delete parsed._format;applyHours(parsed,'Detected: '+fmt+' · '+file.name);}
+    else loadSample("Couldn't read that file — loaded sample data so you can explore.");
+  };
+  reader.onerror=()=>loadSample("File read failed — loaded sample data.");
+  reader.readAsText(file);
+}
+function loadSample(note){
+  applyHours({total:268,pic:112,xc:58,night:14,instrument:45,multi:12,solo:22},note||'Sample logbook loaded');
+  if(!PROFILE.certs.length){["CPL","Instrument","CFI","Complex","High-perf","Tailwheel"].forEach(c=>{const b=document.querySelector(`#cert-grid input[value="${c}"]`);if(b)b.checked=true;});syncCerts();}
+}
+function applyHours(h,src){
+  PROFILE.hours=h;PROFILE.src=src;PROFILE.loaded=true;
+  const rows=[['Total',h.total],['PIC',h.pic],['Cross-ctry',h.xc],['Instrument',h.instrument],['Multi',h.multi],['Night',h.night]];
+  document.getElementById('parsed-grid').innerHTML=rows.map(r=>`<div class="pc"><div class="v">${r[1]}</div><div class="k">${r[0]} hr</div></div>`).join('');
+  document.getElementById('parsed-src').textContent=src;
+  document.getElementById('parsed').classList.add('show');
+  refreshProfileUI();
+}
+
+/* ===================== CERTS ===================== */
+document.getElementById('cert-grid').innerHTML=CERT_OPTS.map(c=>`<label class="cert-opt"><input type="checkbox" value="${c}" onchange="syncCerts()">${c}</label>`).join('');
+function syncCerts(){PROFILE.certs=[...document.querySelectorAll('#cert-grid input:checked')].map(i=>i.value);refreshProfileUI();}
+function attachCerts(files){PROFILE.certFiles=[...files].map(f=>f.name);document.getElementById('cert-files').textContent=PROFILE.certFiles.length?('Attached: '+PROFILE.certFiles.join(', ')):'';}
+
+/* ===================== REFRESH ===================== */
+function refreshProfileUI(){
+  if(PROFILE.loaded){
+    document.getElementById('ob-count').textContent=countQualifying();
+    document.getElementById('ob-line').textContent=`${PROFILE.hours.total} hr total · ${PROFILE.certs.join(', ')||'no ratings selected yet'}`;
+    document.getElementById('ob-result').style.display='flex';
+    document.getElementById('hours').value=Math.min(1500,Math.max(250,Math.round(PROFILE.hours.total/50)*50));
+    document.getElementById('profile-banner').style.display='flex';
+    document.getElementById('pb-hrs').textContent=`${PROFILE.hours.total} hr total · ${PROFILE.certs.join(' · ')}`;
+  }
+  renderProfileView();
+}
+
+/* ===================== JOB BOARD ===================== */
+const PERK_MAP={lowtime:["low","Low-time OK"],timebuild:["time","Time building"],signon:["bonus","Sign-on bonus"],reloc:["reloc","Relocation"]};
+const PIN='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>';
+const PLN='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3.5S18 3 16.5 4.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/></svg>';
+function getChecked(f){return [...document.querySelectorAll(`input[data-f="${f}"]:checked`)].map(i=>i.value);}
+function initials(n){return n.split(' ').filter(w=>/[A-Z]/.test(w[0]||'')).slice(0,2).map(w=>w[0]).join('')||n.slice(0,2).toUpperCase();}
+
+function render(){
+  const q=(document.getElementById('search').value||'').toLowerCase().trim();
+  const roles=getChecked('role'),certs=getChecked('cert'),perks=getChecked('perk'),sched=getChecked('sched');
+  const maxH=+document.getElementById('hours').value;
+  document.getElementById('hrs-val').textContent=maxH>=1500?'1,500+':maxH.toLocaleString();
+  let out=JOBS.filter(j=>{
+    if(q&&!(j.employer+' '+j.role+' '+j.aircraft+' '+j.location+' '+j.roletype).toLowerCase().includes(q))return false;
+    if(roles.length&&!roles.includes(j.roletype))return false;
+    if(certs.length&&!certs.includes(j.cert))return false;
+    if(sched.length&&!sched.includes(j.sched))return false;
+    if(perks.length&&!j.perks.some(p=>perks.includes(p)))return false;
+    if(j.minhours>maxH)return false;
+    if(onlyQualify){const s=qStatus(j);if(!s||s.state!=='ok')return false;}
+    return true;
+  }).sort((a,b)=>(b.featured-a.featured)||(a.minhours-b.minhours));
+  document.getElementById('rcount').textContent=out.length;
+  const cards=document.getElementById('cards');
+  if(!out.length){cards.innerHTML='<div class="no-res"><b>No openings match those filters</b>Try raising your hours or clearing a filter.</div>';return;}
+  cards.innerHTML=out.map(j=>{
+    const s=qStatus(j);let qbar='';
+    if(s){if(s.state==='ok')qbar='<div class="qbar q-ok">✓ You qualify</div>';
+      else if(s.state==='hrs')qbar=`<div class="qbar q-hrs">▲ ${s.gap} more hours needed</div>`;
+      else qbar=`<div class="qbar q-cert">✕ Requires ${j.cert}</div>`;}
+    const tags=[];if(j.now)tags.push('<span class="chip now">Hiring now</span>');
+    j.perks.forEach(p=>{const m=PERK_MAP[p];if(m)tags.push(`<span class="chip ${m[0]}">${m[1]}</span>`);});
+    return `<div class="pcard ${j.featured?'featured':''}"><div class="strip"></div>${qbar}
+      <div class="pc-top"><div class="pc-badge">${initials(j.employer)}</div><div class="pc-title"><h3>${j.role}</h3><div class="sub">${j.employer} · ${j.etype}</div></div></div>
+      <div class="pc-meta"><span>${PIN} ${j.location}</span><span>${PLN} ${j.aircraft}</span></div>
+      <div class="pc-tags">${tags.join('')}</div>
+      <div class="pc-spec"><div><span>Min hours</span><b>${j.minhours}</b></div><div><span>Certificate</span><b>${j.cert}</b></div><div><span>Schedule</span><b>${j.sched}</b></div></div>
+      <div class="pc-foot"><div class="pc-price">${j.pay} <small>${j.unit}</small></div>
+        <div class="pc-actions"><button class="mini-btn mini-tips" onclick="openCoach(${j.id})">Application tips</button><button class="mini-btn mini-apply" onclick="openCoach(${j.id})">Apply</button></div></div></div>`;
+  }).join('');
+}
+function clearFilters(){document.querySelectorAll('.filters input[type=checkbox]').forEach(c=>c.checked=false);document.getElementById('hours').value=PROFILE.loaded?Math.min(1500,Math.round(PROFILE.hours.total/50)*50):1500;render();}
+function toggleQ(){onlyQualify=!onlyQualify;document.getElementById('qtoggle').classList.toggle('on',onlyQualify);render();}
+
+/* ===================== PROFILE VIEW ===================== */
+function renderProfileView(){
+  const has=PROFILE.loaded;
+  document.getElementById('no-profile').style.display=has?'none':'block';
+  document.getElementById('profile-body').style.display=has?'block':'none';
+  if(!has)return;
+  const h=PROFILE.hours;
+  document.getElementById('pf-src').textContent=PROFILE.src.startsWith('Detected')?'· '+PROFILE.src.replace('Detected: ',''):'';
+  document.getElementById('pf-hours').innerHTML=[['Total',h.total],['PIC',h.pic],['Cross-ctry',h.xc],['Instrument',h.instrument],['Multi',h.multi],['Night',h.night]].map(r=>`<div class="cell"><div class="v">${r[1]}<small> hr</small></div><div class="k">${r[0]}</div></div>`).join('');
+  document.getElementById('pf-certs').innerHTML=PROFILE.certs.length?PROFILE.certs.map(c=>`<span class="rc">${c}</span>`).join(''):'<span style="color:var(--muted);font-size:13px">No ratings selected</span>';
+  document.getElementById('pf-qual').textContent=`You qualify for ${countQualifying()} of ${JOBS.length} live openings`;
+  document.getElementById('pf-ratp').textContent=Math.max(0,1250-h.total)+' hr';
+  const m=JOBS.filter(j=>{const s=qStatus(j);return s&&s.state==='ok';}).sort((a,b)=>b.featured-a.featured).slice(0,3);
+  document.getElementById('pf-matches').innerHTML=(m.length?m:JOBS.slice(0,3)).map(j=>`<div style="padding:12px 13px;border:1px solid var(--line);border-radius:10px;cursor:pointer" onclick="openCoach(${j.id})"><div style="font-weight:600;font-size:14px">${j.role}</div><div style="font-family:var(--font-mono);font-size:11.5px;color:var(--muted);margin-top:3px">${j.employer} · ${j.minhours} hr · ${j.pay}</div></div>`).join('');
+}
+
+/* ===================== COACHING ===================== */
+function tailoredTips(j){
+  const h=PROFILE.hours,tips=[],s=qStatus(j);
+  if(!PROFILE.loaded){tips.push("Upload your logbook first so these tips use your real hours.");tips.push(`This ${j.role} role needs about ${j.minhours} hr and a ${j.cert}.`);return tips;}
+  if(s.state==='cert')tips.push(`This role requires a ${j.cert}, which isn't on your profile. Add or finish it before applying — you already hold ${PROFILE.certs.join(', ')||'your commercial'}.`);
+  else if(s.state==='hrs')tips.push(`You're ${s.gap} hours short of the ${j.minhours}-hr minimum. Build time in a lower-minimum role first (instructing, banner tow, or survey) and re-apply.`);
+  else tips.push(`You meet the minimums (${h.total} hr vs ${j.minhours} required). Apply now and don't undersell — plenty of applicants have fewer hours.`);
+  if(/Instructor/.test(j.role))tips.push(`Emphasize any mentoring or teaching-adjacent experience. Instructing here also builds PIC fast toward ATP.`);
+  if(j.roletype==='Regional Airline')tips.push(`Highlight multi (${h.multi} hr) and instrument (${h.instrument} hr) time, plus a clean checkride record — cadet programs weigh trainability heavily.`);
+  if(j.roletype==='Survey & Patrol'||j.roletype==='Banner & Tow')tips.push(`Lead with steady stick-and-rudder and cross-country time (${h.xc} hr). These value reliability and low-level VFR comfort over jet aspirations.`);
+  if(j.roletype==='Part 135 / Charter'||j.roletype==='Corporate'||j.roletype==='Cargo')tips.push(`Show IFR currency and your ${h.instrument} hr instrument time — 135 and corporate ops fly hard IFR. Mention any complex/high-perf time.`);
+  const toATP=Math.max(0,1250-h.total);
+  if(toATP>0&&j.minhours<=h.total)tips.push(`You're ${toATP} hr from R-ATP mins — this role is a smart time-builder toward the regionals.`);
+  tips.push(`Mirror the posting's language for "${j.aircraft}" and ${j.location}-area ops in your resume so keyword scans catch it.`);
+  return tips;
+}
+function resumeSummary(j){const h=PROFILE.hours;const certs=PROFILE.certs.length?PROFILE.certs.join(', '):'Commercial Pilot';return `Commercial pilot with ${h.total} hours total time (${h.pic} PIC, ${h.xc} cross-country, ${h.instrument} instrument, ${h.multi} multi-engine), holding ${certs}. Seeking the ${j.role} position with ${j.employer} to apply disciplined, safety-first flying while building toward ATP minimums.`;}
+function coverLetter(j){const h=PROFILE.hours;return `Dear ${j.employer} Hiring Team,\n\nI'm writing to apply for the ${j.role} position${j.location?` in ${j.location}`:''}. I hold ${PROFILE.certs.join(', ')||'my Commercial certificate'} with ${h.total} hours total time, including ${h.pic} hours PIC and ${h.instrument} hours of instrument time.\n\nThe ${j.aircraft} operation is exactly where I want to grow. I bring consistent, by-the-checklist flying, strong cross-country experience (${h.xc} hr), and a genuine commitment to your safety culture.\n\nI'd welcome the chance to discuss how I can contribute. Thank you for your consideration.\n\nSincerely,\nJordan Reyes`;}
+let CURRENT_JOB=null;
+function openCoach(id){
+  const j=JOBS.find(x=>x.id===id);CURRENT_JOB=j;
+  document.getElementById('m-role').textContent=j.role;
+  document.getElementById('m-emp').textContent=`${j.employer} · ${j.location} · ${j.pay}`;
+  const s=qStatus(j);let fit='';
+  if(s){if(s.state==='ok')fit='<div class="fit ok">✓ You qualify for this role at your current time.</div>';
+    else if(s.state==='hrs')fit=`<div class="fit gap">▲ ${s.gap} hours short of the ${j.minhours}-hr minimum — worth prepping now.</div>`;
+    else fit=`<div class="fit gap">✕ Requires a ${j.cert} you haven't added yet.</div>`;
+  }else fit='<div class="fit gap">Upload your logbook to see a personalized fit analysis.</div>';
+  const tips=tailoredTips(j).map(t=>`<div class="tip-row"><span class="b"></span><span>${t}</span></div>`).join('');
+  const summary=PROFILE.loaded?resumeSummary(j):'Upload your logbook to generate a resume summary from your real hours.';
+  const letter=PROFILE.loaded?coverLetter(j):'Upload your logbook to generate a tailored cover letter.';
+  document.getElementById('m-body').innerHTML=`${fit}
+    <div class="mb-h">Tailored application tips</div>${tips}
+    <div class="mb-h">Resume summary <span class="copy-btn" onclick="copyText('kit-sum',this)">Copy</span></div><div class="kit" id="kit-sum">${summary}</div>
+    <div class="mb-h">Cover letter draft <span style="display:flex;gap:10px;align-items:center"><button class="ai-btn" id="ai-btn" onclick="sharpenAI()">✨ Sharpen with AI</button><span class="copy-btn" onclick="copyText('kit-letter',this)">Copy</span></span></div><div class="kit" id="kit-letter">${letter}</div>
+    <div class="ai-note">Tips &amp; drafts are generated from your logbook. "Sharpen with AI" calls a model to personalize the letter further.</div>`;
+  document.getElementById('overlay').classList.add('show');document.body.style.overflow='hidden';
+}
+function closeModal(){document.getElementById('overlay').classList.remove('show');document.body.style.overflow='';}
+function copyText(id,btn){const t=document.getElementById(id).textContent;navigator.clipboard&&navigator.clipboard.writeText(t);const o=btn.textContent;btn.textContent='Copied ✓';setTimeout(()=>btn.textContent=o,1400);}
+async function sharpenAI(){
+  if(!PROFILE.loaded||!CURRENT_JOB)return;
+  const btn=document.getElementById('ai-btn');btn.disabled=true;btn.textContent='✨ Writing…';
+  const j=CURRENT_JOB,h=PROFILE.hours;
+  const prompt=`You are an aviation career coach. Write a concise, confident cover letter (max 180 words) for a low-time pilot applying to this job. Do not invent hours or ratings beyond those given.
+Job: ${j.role} at ${j.employer}, ${j.location}. Aircraft: ${j.aircraft}. Minimum ${j.minhours} hr, requires ${j.cert}.
+Pilot: ${h.total} hr total, ${h.pic} PIC, ${h.xc} cross-country, ${h.instrument} instrument, ${h.multi} multi. Holds: ${PROFILE.certs.join(', ')}. Name: Jordan Reyes.
+Return only the letter text.`;
+  try{
+    const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-6",max_tokens:1000,messages:[{role:"user",content:prompt}]})});
+    if(!r.ok)throw new Error('api');
+    const data=await r.json();
+    const text=(data.content||[]).filter(b=>b.type==='text').map(b=>b.text).join('\n').trim();
+    if(!text)throw new Error('empty');
+    document.getElementById('kit-letter').textContent=text;btn.textContent='✨ Sharpened';btn.disabled=false;
+  }catch(e){btn.textContent='AI unavailable — using draft';setTimeout(()=>{btn.textContent='✨ Sharpen with AI';btn.disabled=false;},1800);}
+}
+
+/* ===================== FILTERS + ROUTER ===================== */
+const ROLES=[...new Set(JOBS.map(j=>j.roletype))];
+document.getElementById('f-role').innerHTML=ROLES.map(r=>{const n=JOBS.filter(j=>j.roletype===r).length;return `<label class="opt"><input type="checkbox" value="${r}" data-f="role" onchange="render()">${r}<span class="ct">${n}</span></label>`;}).join('');
+const CERTF=["CPL","CFI","CFII","R-ATP"];
+document.getElementById('f-cert').innerHTML=CERTF.map(c=>{const n=JOBS.filter(j=>j.cert===c).length;return `<label class="opt"><input type="checkbox" value="${c}" data-f="cert" onchange="render()">${c}<span class="ct">${n}</span></label>`;}).join('');
+function go(view,anchor){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+view).classList.add('active');
+  document.querySelectorAll('.nav-links button').forEach(b=>b.classList.toggle('active',b.dataset.nav===view&&!anchor));
+  window.scrollTo({top:0,behavior:'instant'});
+  if(view==='jobs')render();if(view==='portal')renderProfileView();
+  if(anchor){setTimeout(()=>{const el=document.getElementById(anchor);if(el)el.scrollIntoView({behavior:'smooth'});},60);}
+}
+const dz=document.getElementById('dz');
+['dragover','dragenter'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.add('drag');}));
+['dragleave','drop'].forEach(ev=>dz.addEventListener(ev,e=>{e.preventDefault();dz.classList.remove('drag');}));
+dz.addEventListener('drop',e=>{if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+function tick(){const d=new Date();document.getElementById('clock').textContent=`${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')} CDT`;}
+tick();setInterval(tick,30000);
+render();renderProfileView();
+</script>
+</body>
+</html>

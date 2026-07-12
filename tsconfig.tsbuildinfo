@@ -1,0 +1,1 @@
+{"root":["./src/app.tsx","./src/main.tsx","./src/lib/auth.tsx","./src/lib/supabase.ts","./src/lib/types.ts","./src/pages/jobboard.tsx","./src/pages/profile.tsx","./src/pages/signin.tsx"],"version":"5.9.3"}

@@ -1,0 +1,9 @@
+# Minimal Supabase config. `supabase init` will expand this if you re-run it.
+project_id = "flightpath"
+
+[functions.ingest-job]
+# Uses x-ingest-secret (server-to-server), not a Supabase JWT.
+verify_jwt = false
+
+[functions.review-action]
+verify_jwt = false
